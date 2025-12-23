@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dreamlike Christmas Tree - Gesture Interactive</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #050505; /* Deep dark background, not pure black */
+            font-family: 'Courier New', Courier, monospace;
+        }
+        
+        #canvas-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        /* Overlay for initial interaction (Audio Context requirement) */
+        #overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: #ff6fae;
+            z-index: 10;
+            transition: opacity 1s ease;
+            cursor: pointer;
+            text-align: center;
+            padding: 20px;
+        }
+
+        #overlay h1 {
+            font-weight: 300;
+            text-shadow: 0 0 10px #ff6fae;
+            letter-spacing: 2px;
+        }
+
+        #overlay p {
+            color: #fff;
+            max-width: 600px;
+            line-height: 1.6;
+        }
+
+        .hidden {
+            display: none !important;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Hidden inputs/media */
+        #user-audio-input { display: none; }
+        #bg-music { display: none; }
+        #video-source { display: none; }
+
+        /* Loading indicator */
+        #loading {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 12px;
+            z-index: 5;
+        }
+        
+        /* Mirror the video element for debugging if needed, but we hide it */
+        .input_video {
+            display: none; 
+        }
+    </style>
+</head>
+<body>
+
+    <div id="canvas-container"></div>
+
+    <div id="overlay">
+        <h1>INTERACTIVE DREAM TREE</h1>
+        <p>
+            Allow camera access.<br>
+            <b>Open Palm:</b> Scatter Stars<br>
+            <b>Closed Palm:</b> Assemble Tree<br>
+            <b>Pinch (Thumb+Index):</b> Play Memory<br>
+            <b>Move Hand:</b> Rotate<br><br>
+            [ Click anywhere to Begin ]
+        </p>
+    </div>
+
+    <script>
+        // Fallback inline click handler: ensures the overlay responds immediately
+        // and notifies the module (dispatches a `user-start` event) when clicked.
+        window.__userClickedStart = false;
+        (function(){
+            const overlayEl = document.getElementById('overlay');
+            if (!overlayEl) return;
+            overlayEl.addEventListener('click', () => {
+                // quick visual feedback
+                overlayEl.style.opacity = '0';
+                setTimeout(() => { overlayEl.style.display = 'none'; }, 500);
+                window.__userClickedStart = true;
+                document.dispatchEvent(new Event('user-start'));
+                console.log('Overlay clicked (inline fallback)');
+            });
+        })();
+    </script>
+
+    <audio id="bg-music" loop crossorigin="anonymous">
+        <source src="https://files.catbox.moe/ktakjh.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+
+    <video id="video-source" loop playsinline crossOrigin="anonymous" style="display:none">
+        <source src="https://files.catbox.moe/exim5m.mp4" type="video/mp4">
+    </video>
+
+    <input type="file" id="user-audio-input" accept="audio/mpeg, audio/mp3, audio/ogg">
+
+    <video class="input_video"></video>
+
+    <div id="loading">Initializing Neural Net & Graphics...</div>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+
+    <script type="module" src="./main.js"></script>
+</body>
+</html>
